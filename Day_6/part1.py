@@ -19,6 +19,6 @@ def breedFish(fishList):
     
 for i in range(days):
   startingFish = breedFish(startingFish)
-  # print(startingFish)
+  print("Day " + str(i+1) + ": " + str(len(startingFish)))
   
 print(fileName, days, len(startingFish))
