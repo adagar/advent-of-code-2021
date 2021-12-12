@@ -1,30 +1,55 @@
+from os import error
 import sys
+from termcolor import colored
 fileName = sys.argv[1]
 
 def parseMyFile(file):
   fileData = open(file, "r")
   lines = fileData.readlines()
+  dataLines = []
   
-  rows = []
-  for line in lines:    
-    rows.append([int(char) for char in line.strip()])
+  for line in lines:
+    dataLines.append(line.strip())
+  return dataLines
   
-  return rows
+def removeMatches(line, pair):
+  found = False
   
-danger = 0
-seaFloor = parseMyFile(fileName)
+  while(pair in line):
+    line = line.replace(pair, "")
+    found = True
+ 
+  return line
 
-for i in range(len(seaFloor)):
-  for j in range(len(seaFloor[i])):
-    top = seaFloor[i-1][j] if i > 0 else None
-    bottom = seaFloor[i+1][j] if i < len(seaFloor)-1 else None
-    left = seaFloor[i][j-1] if j > 0 else None
-    right = seaFloor[i][j+1] if j < len(seaFloor[i])-1 else None
-    height = seaFloor[i][j]
-    print('height: ', height, 'top: ', top, 'bottom: ', bottom, 'left: ', left, 'right: ', right)
-    if (height < top or top is None) and (height < bottom or bottom is None) and (height < left or left is None) and (height < right or right is None):
-      print("Danger at:", i, j, height)
-      danger += 1 + height
-    
   
-print(danger)
+lines = parseMyFile(fileName)
+pairs = ["()", "[]", "{}", "<>"]
+closers = {")": 3, "]": 57, "}": 1197, ">": 25137}
+openers = ["(", "[", "{", "<"]
+errorScore = 0
+
+cleanLines = []
+
+for line in lines:
+  print("Starting line", line)
+  dirty = True
+  i = 0
+  
+  while i < len(pairs):
+    cleanedLine = removeMatches(line, pairs[i])
+    print(cleanedLine + "\n" + line)
+    if(line != cleanedLine):
+      print("Found a match for", pairs[i])
+      line = cleanedLine
+      i = 0
+    else:
+      i += 1
+  for opener in openers:
+    line = line.replace(opener, "")
+  if(len(line) > 0):
+    errorScore += closers[line[0]]
+  print("Ending line", line)
+        
+  
+
+print(errorScore)
