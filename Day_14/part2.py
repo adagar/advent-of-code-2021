@@ -1,4 +1,5 @@
 import sys
+from collections import Counter
  
 fileName = sys.argv[1]
 steps = int(sys.argv[2])
@@ -23,39 +24,69 @@ def leastCommon(arr):
   return min(set(arr), key=arr.count)
   
 start, rules = parseMyFile(fileName)
-transformations = {}
-for i in range(0, steps):
-  print("Step:", i)
+
+def transform(start):
   newStart = []
-  
-  checkMatch = len(start)
-  foundMatch = False
-  for k in range(checkMatch, 2, -1):
-    potentialMatch = "".join(start[0:k])
-    # print("SUBSET:")
-    # print(potentialMatch)
-    if potentialMatch in transformations:
-      print("FOUND A MATCH")
-      checkMatch = k
-      newStart = transformations[potentialMatch]
-      foundMatch = True
-      break
   
   for j in range(0, len(start) - 1):
     pair = start[j] + start[j+1]
-    newTrypt = [start[j], rules[pair], start[j+1]]
+    newTrypt = [start[j], rules[pair]]
     # print(newTrypt)
     newStart.extend(newTrypt)
-      
-  # print(newStart)
-  transformations["".join(start)] = newStart
-  # print(transformations)
-  start = newStart
-      
+  newStart.append(start[-1])
+  
+  return newStart
 
-print(start,rules)
-most = [mostCommon(start), start.count(mostCommon(start))]
-least = [leastCommon(start), start.count(leastCommon(start))]
+def getPairs(start):
+  pairs = []
+  for i in range(0, len(start) - 1):
+    pairs.append(start[i] + start[i+1])
+  return pairs
+pairs = getPairs(start)
 
-print(most, least, most[1] - least[1])
+pairCount = Counter(pairs)
+
+for i in range(0, steps):
+  updatedPairCount = {}
+  for key in pairCount:
+    newMiddle = rules[key]
+    left = key[0] + newMiddle
+    right = newMiddle + key[1]
+    
+    if(left in updatedPairCount):
+      updatedPairCount[left] += pairCount[key]
+    elif(left not in updatedPairCount):
+      updatedPairCount[left] = pairCount[key]
+    if(right in updatedPairCount):
+      updatedPairCount[right] += pairCount[key]
+    elif(right not in updatedPairCount):
+      updatedPairCount[right] = pairCount[key]
+        
+  pairCount = updatedPairCount.copy()
+
+print(pairCount)
+newString = ""
+alphaCount = {}
+for key in pairCount:
+  left = key[0]
+  right = key[1]
+  if(left in alphaCount):
+    alphaCount[left] += pairCount[key]
+  elif(left not in alphaCount):
+    alphaCount[left] = pairCount[key]
+  # if(right in alphaCount):
+  #   alphaCount[right] += pairCount[key]
+  # elif(right not in alphaCount):
+  #   alphaCount[right] = pairCount[key]
+  
+print(alphaCount)
+maxKey = max(alphaCount, key=alphaCount.get)
+minKey = min(alphaCount, key=alphaCount.get)
+# most = [mostCommon(newString), newString.count(mostCommon(newString))]
+# least = [leastCommon(newString), newString.count(leastCommon(newString))]
+
+print("".join(start))
+# print(most, least, most[1] - least[1])
+print(maxKey, alphaCount[maxKey], minKey, alphaCount[minKey])
+print(alphaCount[maxKey] - alphaCount[minKey])
 

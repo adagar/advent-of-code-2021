@@ -1,4 +1,5 @@
 import sys
+from collections import Counter
  
 fileName = sys.argv[1]
 steps = int(sys.argv[2])
@@ -26,19 +27,23 @@ start, rules = parseMyFile(fileName)
 transformations = {}
 for i in range(0, steps):
   print("Step:", i)
-  newStart = start[:]
+  # print("Start:", start)
+  # newStart = start[:]
+  newStart = []
   for j in range(0, len(start) - 1):
     pair = start[j] + start[j+1]
     # print(pair)
     if pair in rules:
-      newStart.insert(j+1 + j, rules[pair])
-      
+      newTrypt = [start[j], rules[pair]]
+      # print(newTrypt)
+      newStart.extend(newTrypt)
+  newStart.append(start[-1])
   # print(start)
   transformations["".join(start)] = newStart
-  print(transformations)
+  # print(transformations)
   start = newStart
       
-
+print("".join(start))
 # print(start,rules)
 most = [mostCommon(start), start.count(mostCommon(start))]
 least = [leastCommon(start), start.count(leastCommon(start))]
